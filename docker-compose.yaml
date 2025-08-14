@@ -1,0 +1,36 @@
+services:
+  database-source:
+    image: mariadb:11.4-noble
+    container_name: kamiodagames_db_source
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kamiodagamesid
+    command: --server-id=1 --log-bin --binlog-do-db=kamiodagamesid
+  database-replica:
+    image: mariadb:11.4-noble
+    container_name: kamiodagames_db_replica
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kamiodagamesid
+    command: --server-id=2 --relay-log=mysql-relay-bin --log-bin --binlog-do-db=kamiodagamesid --read-only=1
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d
+    depends_on:
+      - database-source
+  apiserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database-source
+      - database-replica

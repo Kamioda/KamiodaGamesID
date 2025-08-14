@@ -1,0 +1,46 @@
+spring:
+    application:
+        name: Kamioda Games ID
+    datasource:
+        # url: jdbc:mariadb://localhost:3306/kamiodagamesid
+        url: jdbc:mariadb:replication://localhost:3306,localhost:3307/kamiodagamesid?connectTimeout=2000&socketTimeout=5000
+        username: root
+        password: root
+    jpa:
+        database-platform: org.hibernate.dialect.MariaDBDialect
+        hibernate:
+            ddl-auto: none
+            naming:
+                physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        properties:
+            # --- Jakarta Persistence 標準プロパティ ---
+            jakarta:
+                persistence:
+                    schema-generation:
+                        create-source: metadata
+                        drop-source: metadata
+                        database:
+                            action: none
+                        scripts:
+                            action: create
+                            create-target: schema/create.sql
+                            drop-target: schema/drop.sql
+            hibernate:
+                hbm2ddl:
+                    schema-generation:
+                        script:
+                            append: false
+    web:
+        resources:
+            static-locations: file:./wwwroot/
+mail:
+    smtp:
+        host: smtp.example.com
+        port: 587
+    user:
+        name: user@example.com
+        password: yourpassword
+    from:
+        address: from@example.com
+        name: "From Name"

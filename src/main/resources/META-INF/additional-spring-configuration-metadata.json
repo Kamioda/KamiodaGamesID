@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "mail.smtp.host",
+    "type": "java.lang.String",
+    "description": "mail smtp host"
+  },
+  {
+    "name": "mail.smtp.port",
+    "type": "java.lang.String",
+    "description": "mail smtp port"
+  },
+  {
+    "name": "mail.user.name",
+    "type": "java.lang.String",
+    "description": "mail user name"
+  },
+  {
+    "name": "mail.user.password",
+    "type": "java.lang.String",
+    "description": "mail user password"
+  },
+  {
+    "name": "mail.from.address",
+    "type": "java.lang.String",
+    "description": "mail from address"
+  },
+  {
+    "name": "mail.from.name",
+    "type": "java.lang.String",
+    "description": "mail from name"
+  }
+]}
