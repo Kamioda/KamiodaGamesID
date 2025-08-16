@@ -37,7 +37,7 @@ public class UserService {
             throw new BadRequestException("Email already in use");
         String PreEntryID = preEntryIDGenerator.generate();
         preEntryRepository.insertPreEntryRecord(PreEntryID, Email);
-        String Message = File.readAllText("data/pre_entry.txt");
+        String Message = File.readAllText("./data/mail/pre_entry.txt");
         Message.replace("{PreEntryID}", PreEntryID);
         mail.send(Email, "【Kamioda Games ID】仮登録のお知らせ", Message);
     }
@@ -50,7 +50,7 @@ public class UserService {
             String masterID = masterIDGenerator.generate(userId);
             User user = new User(masterID, userId, name, record.get().getEmail(), password);
             userRepository.save(user);
-            String Message = File.readAllText("data/entry.txt");
+            String Message = File.readAllText("./data/mail/entry.txt");
             Message.replace("{UserName}", name);
             Message.replace("{UserID}", userId);
             mail.send(record.get().getEmail(), "【Kamioda Games ID】本登録のお知らせ", Message);
@@ -73,7 +73,7 @@ public class UserService {
         if (newAccountInformation.getEmail() != null) {
             String updateID = preEntryIDGenerator.generate();
             preEntryRepository.insertEmailUpdateRecord(updateID, user.getId(), newAccountInformation.getEmail());
-            String Message = File.readAllText("data/email_update.txt");
+            String Message = File.readAllText("./data/mail/email_update.txt");
             Message.replace("{UserName}", user.getName());
             Message.replace("{UserID}", user.getUserId());
             Message.replace("{UpdateID}", updateID);
@@ -93,7 +93,7 @@ public class UserService {
     public void deleteAccount(String accessToken) throws UnauthorizationException, NotFoundException, IOException {
         User user = tokenService.getUser(accessToken);
         userRepository.deleteUser(user.getId());
-        String Message = File.readAllText("data/delete.txt");
+        String Message = File.readAllText("./data/mail/delete.txt");
         Message.replace("{UserName}", user.getName());
         Message.replace("{UserID}", user.getUserId());
         mail.send(user.getEmail(), "【Kamioda Games ID】アカウント削除のお知らせ", Message);
