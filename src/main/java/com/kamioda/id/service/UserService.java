@@ -41,6 +41,9 @@ public class UserService {
         Message.replace("{PreEntryID}", PreEntryID);
         mail.send(Email, "【Kamioda Games ID】仮登録のお知らせ", Message);
     }
+    public void create(User user) {
+        userRepository.save(user);
+    }
     public void entry(String preEntryId, String userId, String name, String password) throws BadRequestException, NotFoundException, IOException {
         try {
             Optional<PreEntryRecord> record = preEntryRepository.findById(preEntryId);
@@ -48,8 +51,7 @@ public class UserService {
             if (record.get().expired()) throw new BadRequestException("Pre-entry record expired");
             if (userRepository.countRecords(userId) > 0) throw new BadRequestException("User ID already in use");
             String masterID = masterIDGenerator.generate(userId);
-            User user = new User(masterID, userId, name, record.get().getEmail(), password);
-            userRepository.save(user);
+            create(new User(masterID, userId, name, record.get().getEmail(), password));
             String Message = File.readAllText("./data/mail/entry.txt");
             Message.replace("{UserName}", name);
             Message.replace("{UserID}", userId);
