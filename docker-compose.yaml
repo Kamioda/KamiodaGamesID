@@ -55,6 +55,8 @@ services:
                 condition: service_healthy
         networks:
             - backend
+        volumes:
+            - ./data:/app/data
 networks:
     backend:
         driver: bridge
