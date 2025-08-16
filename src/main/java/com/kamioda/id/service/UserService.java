@@ -98,4 +98,16 @@ public class UserService {
         Message.replace("{UserID}", user.getUserId());
         mail.send(user.getEmail(), "【Kamioda Games ID】アカウント削除のお知らせ", Message);
     }
+    public void deleteAccount(String accessToken, String userId, String deleteReason) throws UnauthorizationException, NotFoundException, IOException {
+        User user = tokenService.getUser(accessToken);
+        if (user.getId().charAt((0)) != '0') throw new UnauthorizationException("You cannot delete other user's account");
+        User target = userRepository.findByUserId(userId);
+        if (target == null) throw new NotFoundException("User not found");
+        userRepository.deleteById(user.getId());
+        String Message = File.readAllText("./data/mail/force_delete.txt");
+        Message.replace("{UserName}", target.getName());
+        Message.replace("{UserID}", target.getUserId());
+        Message.replace("{DeleteReason}", deleteReason);
+        mail.send(target.getEmail(), "【Kamioda Games ID】アカウント強制削除のお知らせ", Message);
+    }
 }

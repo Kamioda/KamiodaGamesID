@@ -75,4 +75,19 @@ public class UserController extends ControllerBase{
             return exceptionProcess(e);
         }
     }
+    @DeleteMapping("/api/v1/user/{userId}")
+    public ResponseEntity<?> deleteUserForce(
+        @RequestHeader("Authorization") String authHeader, 
+        @PathVariable String userId,
+        @RequestBody String deleteReason
+    ) {
+        try {
+            if (deleteReason == null || deleteReason.isEmpty()) return ResponseEntity.badRequest().body("Delete reason is required");
+            String accessToken = pickupAccessToken(authHeader);
+            userService.deleteAccount(accessToken, userId, deleteReason);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return exceptionProcess(e);
+        }
+    }
 }
