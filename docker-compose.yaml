@@ -7,6 +7,7 @@ services:
             - "3306"
         volumes:
             - ./schema:/docker-entrypoint-initdb.d
+            - ./data/mariadb/source:/var/lib/mysql
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
@@ -32,6 +33,7 @@ services:
         command: --server-id=2 --relay-log=mysql-relay-bin --log-bin --binlog-do-db=kamiodagamesid --read-only=1
         volumes:
             - ./schema:/docker-entrypoint-initdb.d
+            - ./data/mariadb/replica:/var/lib/mysql
         depends_on:
             database-source:
                 condition: service_healthy
