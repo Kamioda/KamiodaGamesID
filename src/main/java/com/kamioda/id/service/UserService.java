@@ -32,6 +32,9 @@ public class UserService {
     private TokenService tokenService;
     @Autowired
     private MasterIDGenerator masterIDGenerator;
+    public Long getCurrentAccountCount() {
+        return userRepository.count();
+    }
     public void preEntry(String Email) throws BadRequestException, IOException {
         if (userRepository.countRecords(Email) > 0 || preEntryRepository.countByEmail(Email) > 0)
             throw new BadRequestException("Email already in use");

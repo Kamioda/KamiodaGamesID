@@ -14,6 +14,12 @@ public class ApplicationCreateRequest {
     @JsonProperty(value = "redirect_uri", required = true)
     private String redirectUri;
 
+    public ApplicationCreateRequest() {}
+    public ApplicationCreateRequest(String name, String description, String redirectUri) {
+        this.name = name;
+        this.description = description;
+        this.redirectUri = redirectUri;
+    }
     public String getName() {
         return name;
     }

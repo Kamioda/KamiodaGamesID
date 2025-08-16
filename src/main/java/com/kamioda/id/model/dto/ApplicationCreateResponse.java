@@ -13,4 +13,10 @@ public class ApplicationCreateResponse {
         this.appId = appId;
         this.appSecret = appSecret;
     }
+    public String getApplicationId() {
+        return appId;
+    }
+    public String getClientSecret() {
+        return appSecret;
+    }
 }
