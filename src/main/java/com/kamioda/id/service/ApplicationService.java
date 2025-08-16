@@ -27,7 +27,10 @@ public class ApplicationService {
     private TokenService tokenService;
     public ApplicationCreateResponse create(String accessToken, ApplicationCreateRequest request) throws BadRequestException {
         User developer = tokenService.getUser(accessToken);
-        if (developer.getId().charAt(0) != '0') throw new BadRequestException("This user cannot create applications");
+        return create(developer, request);
+    }
+    public ApplicationCreateResponse create(User user, ApplicationCreateRequest request) throws BadRequestException {
+        if (user.getId().charAt(0) != '0') throw new BadRequestException("This user cannot create applications");
         String appId = "app-" + UUID.randomUUID().toString().replace("-", "");
         String appSecret = appSecretGenerator.generate();
         Application application = new Application(appId, Application.hashAppSecret(appSecret), request.getName(), request.getDescription(), request.getRedirectUri());
