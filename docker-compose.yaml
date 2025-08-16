@@ -1,36 +1,60 @@
 services:
-  database-source:
-    image: mariadb:11.4-noble
-    container_name: kamiodagames_db_source
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./schema:/docker-entrypoint-initdb.d
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: kamiodagamesid
-    command: --server-id=1 --log-bin --binlog-do-db=kamiodagamesid
-  database-replica:
-    image: mariadb:11.4-noble
-    container_name: kamiodagames_db_replica
-    ports:
-      - "3307:3306"
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: kamiodagamesid
-    command: --server-id=2 --relay-log=mysql-relay-bin --log-bin --binlog-do-db=kamiodagamesid --read-only=1
-    volumes:
-      - ./schema:/docker-entrypoint-initdb.d
-    depends_on:
-      - database-source
-  apiserver:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - database-source
-      - database-replica
+    database-source:
+        image: mariadb:11.4-noble
+        container_name: kamiodagames_db_source
+        # ホスト公開しない（ports削除）。内部向けに3306をexpose（任意）
+        expose:
+            - "3306"
+        volumes:
+            - ./schema:/docker-entrypoint-initdb.d
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: kamiodagamesid
+        command: --server-id=1 --log-bin --binlog-do-db=kamiodagamesid
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+            interval: 5s
+            timeout: 3s
+            retries: 30
+        networks:
+            - backend
+    database-replica:
+        image: mariadb:11.4-noble
+        container_name: kamiodagames_db_replica
+        # ホスト公開しない（ports削除）
+        expose:
+            - "3306"
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: kamiodagamesid
+        command: --server-id=2 --relay-log=mysql-relay-bin --log-bin --binlog-do-db=kamiodagamesid --read-only=1
+        volumes:
+            - ./schema:/docker-entrypoint-initdb.d
+        depends_on:
+            database-source:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+            interval: 5s
+            timeout: 3s
+            retries: 30
+        networks:
+            - backend
+    apiserver:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "20400:8080"   # ホスト20400 → コンテナ8080（APIのみ公開）
+        depends_on:
+            database-source:
+                condition: service_healthy
+            database-replica:
+                condition: service_healthy
+        networks:
+            - backend
+networks:
+    backend:
+        driver: bridge
