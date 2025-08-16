@@ -235,7 +235,7 @@ public class MasterIDGenerator {
         if (sequenceNumber == null) sequenceNumberRepository.add(String.format("%02d", frontIndex), String.format("%03d", serial));
         else sequenceNumberValue = sequenceNumber.getSequenceNumber();
         sequenceNumberRepository.increment(String.format("%02d", frontIndex), String.format("%03d", serial));
-        String BaseID = String.format("%02d%03d%06d", frontIndex, serial, sequenceNumberValue);
+        String BaseID = String.format("%02d%03d%07d", frontIndex, serial, sequenceNumberValue);
         return Serial.calcCheckDigitWithCorpNumberCheckDigitAlgorithm(BaseID) + BaseID;
     }
 }

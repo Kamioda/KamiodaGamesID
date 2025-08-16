@@ -33,7 +33,7 @@ public class SequenceNumber {
     @Pattern(regexp = "^[0-9]{3}$", message = "SerialText must be exactly 3 digits")
     private String serialText;
     @Column(name = "SequenceNumber", nullable = false)
-    @Max(value = 999999, message = "SequenceNumber must be less than or equal to 999999")
+    @Max(value = 9999999, message = "SequenceNumber must be less than or equal to 9999999")
     @Min(value = 0, message = "SequenceNumber must be greater than or equal to 0")
     private Long sequenceNumber;
     public SequenceNumber() {}
