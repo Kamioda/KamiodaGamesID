@@ -3,12 +3,10 @@ package com.kamioda.id.service;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
-import com.kamioda.id.component.RandomString;
 import com.kamioda.id.model.User;
 import com.kamioda.id.model.dto.ApplicationCreateRequest;
 import com.kamioda.id.model.dto.ApplicationCreateResponse;
