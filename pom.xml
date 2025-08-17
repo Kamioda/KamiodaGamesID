@@ -35,7 +35,6 @@
 	</scm>
 	<properties>
 		<java.version>24</java.version>
-        <dist.dir>${project.build.directory}/dist</dist.dir>
 	</properties>
 	<dependencies>
         <!-- JPA + Hibernate Validator -->
@@ -92,7 +91,6 @@
     </dependencies>
 	<build>
         <plugins>
-            <!-- Boot の fat JAR は classifier=boot として別名で作る（薄いJARも残す） -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -107,8 +105,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- 薄いJARに Manifest を付与（Main-Class と Class-Path を追加） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -116,16 +112,13 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <!-- ← あなたのエントリポイントに変更 -->
-                            <mainClass>com.kamioda.IdApplication</mainClass>
+                            <mainClass>com.kamioda.id.KamiodaGamesIdApplication</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
-
-            <!-- 依存JARを dist/lib/ に、本体JARを dist/ にコピー -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -138,45 +131,11 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${dist.dir}/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                             <includeScope>runtime</includeScope>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-project-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <outputDirectory>${dist.dir}</outputDirectory>
-                                    <destFileName>${project.build.finalName}.jar</destFileName>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                 </executions>
-            </plugin>
-
-            <!-- clean 時に dist/ も削除（target/配下ではないため明示指定） -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.4.0</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${dist.dir}</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
             </plugin>
         </plugins>
     </build>
