@@ -1,5 +1,5 @@
 FROM eclipse-temurin:24-jre
-RUN useradd -r -s /usr/sbin/nologin -u 10001 appuser
+RUN useradd -r -s /usr/sbin/nologin -u 10001 appuser && mkdir -p /app/data/mail
 ARG APP_JAR="id-1.0.0.jar"
 ENV APP_JAR=${APP_JAR}
 
