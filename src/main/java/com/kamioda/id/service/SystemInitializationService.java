@@ -3,6 +3,7 @@ package com.kamioda.id.service;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SystemInitializationService implements ApplicationRunner {
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
+    @Autowired
     private ApplicationService applicationService;
     @Override
     @Transactional(readOnly = false)
