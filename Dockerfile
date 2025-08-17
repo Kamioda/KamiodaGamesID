@@ -1,23 +1,15 @@
-# Java 24 の実行環境（推奨: Eclipse Temurin）
 FROM eclipse-temurin:24-jre
-
-# 非rootで実行
 RUN useradd -r -s /usr/sbin/nologin -u 10001 appuser
+ARG APP_JAR="id-1.0.0.jar"
+ENV APP_JAR=${APP_JAR}
 
-# 作業ディレクトリ
 WORKDIR /app
-
-# dist/ の中身（薄いJAR + 依存JAR群）をそのままコピー
-# 例: dist/id-1.0.0.jar と dist/lib/*.jar
-COPY dist/ /app/
-
+COPY target/${APP_JAR} /app/
+COPY target/lib /app/lib
 # 任意の起動設定
 ENV JAVA_OPTS=""
 ENV SPRING_PROFILES_ACTIVE=""
 
-# 本体JAR名（ビルド引数で差し替え可）
-ARG APP_JAR="id-1.0.0.jar"
-ENV APP_JAR=${APP_JAR}
 
 # デフォルトのHTTPポート
 EXPOSE 8080
