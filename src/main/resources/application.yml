@@ -2,8 +2,8 @@ spring:
     application:
         name: Kamioda Games ID
     datasource:
-        # url: jdbc:mariadb://localhost:3306/kamiodagamesid
-        url: jdbc:mariadb:replication://localhost:3306,localhost:3307/kamiodagamesid?connectTimeout=2000&socketTimeout=5000
+        # url: jdbc:mariadb://localhost:3306/kamiodagamesid?connectTimeout=2000&socketTimeout=5000
+        url: jdbc:mariadb:replication://database-source:3306,database-replica:3306/kamiodagamesid?connectTimeout=2000&socketTimeout=5000
         username: root
         password: root
     jpa:
