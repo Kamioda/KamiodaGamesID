@@ -47,6 +47,9 @@ public class UserService {
     public void create(User user) {
         userRepository.save(user);
     }
+    public Optional<User> findById(String userId) {
+        return userRepository.findById(userId);
+    }
     public void entry(String preEntryId, String userId, String name, String password) throws BadRequestException, NotFoundException, IOException {
         try {
             Optional<PreEntryRecord> record = preEntryRepository.findById(preEntryId);
