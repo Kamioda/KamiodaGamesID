@@ -1,5 +1,5 @@
 create table applications (DeveloperID varchar(13) not null, AppID varchar(255) not null, AppSecret varchar(255) not null, RedirectUri varchar(255) not null, AppDescription text, AppName text not null, constraint UK_app_id primary key (AppID)) engine=InnoDB;
-create table authorizations (ReferenceTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null, CodeChallenge varchar(128) not null, AppID varchar(255) not null, AuthID varchar(255) not null, AuthorizedID varchar(255), CodeChallengeMethod varchar(255) not null, RedirectURI varchar(255) not null, constraint UK_auth_id primary key (AuthID)) engine=InnoDB;
+create table authorizations (ReferenceTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null, AuthorizedID varchar(13), CodeChallenge varchar(128) not null, AppID varchar(255) not null, AuthID varchar(255) not null, CodeChallengeMethod varchar(255) not null, RedirectURI varchar(255) not null, constraint UK_auth_id primary key (AuthID)) engine=InnoDB;
 create table preentryrecord (CreatedAt datetime(6) not null, PreEntryID varchar(16) not null, Email varchar(255) not null, MasterID varchar(255), constraint UK_preentry_id primary key (PreEntryID)) engine=InnoDB;
 create table sequencenumber (FrontIndex varchar(2) not null, SerialText varchar(3) not null, ID bigint not null auto_increment, SequenceNumber bigint not null check ((SequenceNumber>=0) and (SequenceNumber<=9999999)), constraint UK_sequence_id primary key (ID)) engine=InnoDB;
 create table tokens (CreatedAt datetime(6) not null, ID varchar(13) not null, AccessToken varchar(128) not null, RefreshToken varchar(128) not null, AppID varchar(255), constraint UK_token_access primary key (AccessToken)) engine=InnoDB;
@@ -10,5 +10,7 @@ alter table if exists tokens add constraint UK_token_refresh unique (RefreshToke
 alter table if exists users add constraint UK_user_id unique (UserID);
 alter table if exists users add constraint UK_user_email unique (Email);
 alter table if exists applications add constraint FK_application_developer foreign key (DeveloperID) references users (ID);
+alter table if exists authorizations add constraint FK_authorization_application foreign key (AppID) references applications (AppID);
+alter table if exists authorizations add constraint FK_authorization_user foreign key (AuthorizedID) references users (ID);
 alter table if exists tokens add constraint FK_token_application foreign key (AppID) references applications (AppID);
 alter table if exists tokens add constraint FK_token_user foreign key (ID) references users (ID);
