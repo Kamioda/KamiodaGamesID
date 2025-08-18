@@ -60,6 +60,8 @@ public class User {
     private List<Token> tokens;
     @OneToMany(mappedBy = "developer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Application> applications;
+    @OneToMany(mappedBy = "authorizedUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Authorization> authorizations;
     public User() {}
     public User(String id, String userId, String userName, String email, String password) {
         this.id = id;

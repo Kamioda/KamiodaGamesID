@@ -6,7 +6,9 @@ import com.kamioda.id.component.HashUtils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Pattern;
@@ -25,14 +27,8 @@ public class Authorization {
     @Column(name = "AuthID", nullable = false)
     @Pattern(regexp = "auth[01]-[0-9]{8}")
     private String authID;
-    @Column(name = "AppID", nullable = false)
-    @Pattern(regexp = "app-[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$", message = "AppID must be in the format app-{uuid v4}")
-    private String appId;
     @Column(name = "RedirectURI", nullable = false)
     private String redirectURI;
-    @Column(name = "AuthorizedID", nullable = true)
-    @Pattern(regexp = "^\\d{13}$", message = "AuthorizedID must be a 13-digit number")
-    private String authorizedId;
     @Column(name = "CodeChallenge", nullable = false)
     @Size(min = 8, max = 128)
     private String codeChallenge;
@@ -40,6 +36,20 @@ public class Authorization {
     private String codeChallengeMethod;
     @Column(name = "ReferenceTime", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime referenceTime;
+    @JoinColumn(
+        name = "AuthorizedID",
+        referencedColumnName = "ID",
+        nullable = true,
+        foreignKey = @ForeignKey(name = "FK_authorization_user")
+    )
+    private User authorizedUser;
+    @JoinColumn(
+        name = "AppID",
+        referencedColumnName = "AppID",
+        nullable = false,
+        foreignKey = @ForeignKey(name = "FK_authorization_application")
+    )
+    private Application application;
     public Authorization() {}
     private boolean expired() {
         return referenceTime != null && referenceTime.isBefore(LocalDateTime.now().minusMinutes(EXPIRED_MIN));
@@ -50,10 +60,10 @@ public class Authorization {
         return HashUtils.toHash(codeVerifier, codeChallengeMethod, "base64").equals(codeChallenge);
     }
     public String getMasterID() {
-        return authorizedId;
+        return authorizedUser != null ? authorizedUser.getId() : null;
     }
     public String getAppID() {
-        return appId;
+        return application != null ? application.getAppId() : null;
     }
     public String getRedirectUri(String authCode) {
         return redirectURI + "?auth_code=" + authCode;

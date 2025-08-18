@@ -55,6 +55,8 @@ public class Application {
     private User developer;
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Token> tokens;
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Authorization> authorizations;
     public Application() {}
     public Application(String appId, String appSecretHashString, String appName, String appDescription, String redirectUri, User developer) {
         this.appId = appId;
