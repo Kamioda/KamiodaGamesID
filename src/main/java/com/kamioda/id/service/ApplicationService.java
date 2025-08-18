@@ -33,7 +33,7 @@ public class ApplicationService {
         if (user.getId().charAt(0) != '0') throw new BadRequestException("This user cannot create applications");
         String appId = "app-" + UUID.randomUUID().toString().replace("-", "");
         String appSecret = appSecretGenerator.generate();
-        Application application = new Application(appId, Application.hashAppSecret(appSecret), request.getName(), request.getDescription(), request.getRedirectUri());
+        Application application = new Application(appId, Application.hashAppSecret(appSecret), request.getName(), request.getDescription(), request.getRedirectUri(), user);
         applicationRepository.save(application);
         return new ApplicationCreateResponse(appId, appSecret);
     }

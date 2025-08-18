@@ -56,12 +56,13 @@ public class Application {
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Token> tokens;
     public Application() {}
-    public Application(String appId, String appSecretHashString, String appName, String appDescription, String redirectUri) {
+    public Application(String appId, String appSecretHashString, String appName, String appDescription, String redirectUri, User developer) {
         this.appId = appId;
         this.appSecretHashString = appSecretHashString;
         this.appName = appName;
         this.appDescription = appDescription;
         this.redirectUri = redirectUri;
+        this.developer = developer;
     }
     public boolean equalRedirectUri(String redirectUri) {
         return this.redirectUri.equals(redirectUri);
