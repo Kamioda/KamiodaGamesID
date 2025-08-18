@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Pattern;
@@ -36,6 +37,7 @@ public class Authorization {
     private String codeChallengeMethod;
     @Column(name = "ReferenceTime", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime referenceTime;
+    @ManyToOne
     @JoinColumn(
         name = "AuthorizedID",
         referencedColumnName = "ID",
@@ -43,6 +45,7 @@ public class Authorization {
         foreignKey = @ForeignKey(name = "FK_authorization_user")
     )
     private User authorizedUser;
+    @ManyToOne
     @JoinColumn(
         name = "AppID",
         referencedColumnName = "AppID",
