@@ -45,8 +45,6 @@ public class Token {
         name = "ID", 
         referencedColumnName = "ID", 
         nullable = false, 
-        insertable = false, 
-        updatable = false,
         foreignKey = @ForeignKey(name = "FK_token_user")
     )
     private User user;
@@ -54,8 +52,6 @@ public class Token {
     @JoinColumn(
         name = "AppID", 
         referencedColumnName = "AppID", 
-        insertable = false, 
-        updatable = false,
         foreignKey = @ForeignKey(name = "FK_token_application")
     )
     private Application application;

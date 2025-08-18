@@ -50,8 +50,6 @@ public class Application {
         name = "DeveloperID", 
         referencedColumnName = "ID", 
         nullable = false, 
-        insertable = false, 
-        updatable = false,
         foreignKey = @ForeignKey(name = "FK_application_developer")
     )
     private User developer;
