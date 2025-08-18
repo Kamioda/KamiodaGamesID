@@ -24,7 +24,7 @@ public interface AuthorizationRepository extends JpaRepository<Authorization, St
           (AuthID, AppID, RedirectURI, CodeChallenge, CodeChallengeMethod)
         VALUES (CONCAT('auth0-', :authId), :appId, :redirectURI, :codeChallenge, :codeChallengeMethod)
         """, nativeQuery = true)
-    long createAuthorization(@Param("authId") String authId, @Param("appId") String appId, @Param("redirectURI") String redirectURI, @Param("codeChallenge") String codeChallenge, @Param("codeChallengeMethod") String codeChallengeMethod);
+    int createAuthorization(@Param("authId") String authId, @Param("appId") String appId, @Param("redirectURI") String redirectURI, @Param("codeChallenge") String codeChallenge, @Param("codeChallengeMethod") String codeChallengeMethod);
     @Modifying
     @Transactional
     @Query(value = """
@@ -33,7 +33,7 @@ public interface AuthorizationRepository extends JpaRepository<Authorization, St
                AuthorizedID = :masterId
          WHERE AuthID = CONCAT('auth0-', :authId)
         """, nativeQuery = true)
-    long updateToAuthCode(@Param("authCode") String authCode, @Param("masterId") String masterId, @Param("authId") String authId);
+    int updateToAuthCode(@Param("authCode") String authCode, @Param("masterId") String masterId, @Param("authId") String authId);
     @Modifying
     @Transactional
     @Query(value = """
@@ -41,5 +41,5 @@ public interface AuthorizationRepository extends JpaRepository<Authorization, St
          WHERE AuthID = CONCAT('auth0-', :auth)
             OR AuthID = CONCAT('auth1-', :auth)
         """, nativeQuery = true)
-    long deleteByAuthId(@Param("auth") String authId);
+    int deleteByAuthId(@Param("auth") String authId);
 }

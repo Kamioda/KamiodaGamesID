@@ -16,19 +16,19 @@ public interface TokenRepository extends JpaRepository<Token, String> {
     Token findByAccessToken(@Param("accessToken") String accessToken);
     @Transactional(readOnly = true)
     @Query("SELECT COUNT(t) FROM Token t WHERE t.accessToken = :accessToken")
-    long countByAccessToken(@Param("accessToken") String accessToken);
+    int countByAccessToken(@Param("accessToken") String accessToken);
     @Transactional(readOnly = true)
     @Query("SELECT t FROM Token t WHERE t.refreshToken = :refreshToken")
     Token findByRefreshToken(@Param("refreshToken") String refreshToken);
     @Transactional(readOnly = true)
     @Query("SELECT COUNT(t) FROM Token t WHERE t.refreshToken = :refreshToken")
-    long countByRefreshToken(@Param("refreshToken") String refreshToken);
+    int countByRefreshToken(@Param("refreshToken") String refreshToken);
     @Modifying
     @Transactional
     @Query("DELETE FROM Token t WHERE t.accessToken = :accessToken")
-    long deleteByAccessToken(@Param("accessToken") String accessToken);
+    int deleteByAccessToken(@Param("accessToken") String accessToken);
     @Modifying
     @Transactional
     @Query("DELETE FROM Token t WHERE t.refreshToken = :refreshToken")
-    long deleteByRefreshToken(@Param("refreshToken") String refreshToken);
+    int deleteByRefreshToken(@Param("refreshToken") String refreshToken);
 }

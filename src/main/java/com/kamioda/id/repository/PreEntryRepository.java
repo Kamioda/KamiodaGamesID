@@ -14,17 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PreEntryRepository extends JpaRepository<PreEntryRecord, String> {
     @Transactional(readOnly = true)
     @Query("SELECT COUNT(p) FROM PreEntryRecord p WHERE p.email = :email")
-    Long countByEmail(@Param("email") String email);
+    int countByEmail(@Param("email") String email);
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO PreEntryRecord (PreEntryID, Email) VALUES (:preEntryId, :email)", nativeQuery = true)
-    long insertPreEntryRecord(@Param("preEntryId") String preEntryId, @Param("email") String email);
+    int insertPreEntryRecord(@Param("preEntryId") String preEntryId, @Param("email") String email);
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO PreEntryRecord (PreEntryID, MasterID, Email) VALUES (:preEntryId, :masterId, :email)", nativeQuery = true)
-    long insertEmailUpdateRecord(@Param("preEntryId") String updateId, @Param("masterId") String masterId, @Param("email") String email);
+    int insertEmailUpdateRecord(@Param("preEntryId") String updateId, @Param("masterId") String masterId, @Param("email") String email);
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM PreEntryRecord p WHERE p.preEntryId = :preEntryId", nativeQuery = true)
-    long deletePreEntryRecord(@Param("preEntryId") String preEntryId);
+    int deletePreEntryRecord(@Param("preEntryId") String preEntryId);
 }

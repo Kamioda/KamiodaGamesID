@@ -14,9 +14,9 @@ public interface SequenceNumberRepository extends JpaRepository<SequenceNumber, 
     @Modifying
     @Transactional
     @Query("INSERT INTO SequenceNumber (frontIndex, serialText, sequenceNumber) VALUES (:frontIndex, :serialText, 0)")
-    long add(String frontIndex, String serialText);
+    int add(String frontIndex, String serialText);
     @Modifying
     @Transactional
     @Query("UPDATE SequenceNumber s SET s.sequenceNumber = s.sequenceNumber + 1 WHERE s.frontIndex = :frontIndex AND s.serialText = :serialText")
-    long increment(String frontIndex, String serialText);
+    int increment(String frontIndex, String serialText);
 }

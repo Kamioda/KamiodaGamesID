@@ -16,13 +16,13 @@ public interface UserRepository extends JpaRepository<User, String> {
     User findByUserId(@Param("userId") String userId);
     @Transactional(readOnly = true)
     @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId OR u.email = :userId")
-    Long countRecords(@Param("userId") String userId);
+    int countRecords(@Param("userId") String userId);
     @Modifying
     @Transactional
     @Query("UPDATE User u SET u.userName = COALESCE(:userName, u.userName), u.userId = COALESCE(:userId, u.userId), u.email = COALESCE(:email, u.email), u.password = COALESCE(:password, u.password) WHERE u.id = :id")
-    long updateUser(@Param("id") String id, @Param("userId") String userId, @Param("userName") String userName, @Param("email") String email, @Param("password") String password);
+    int updateUser(@Param("id") String id, @Param("userId") String userId, @Param("userName") String userName, @Param("email") String email, @Param("password") String password);
     @Modifying
     @Transactional
     @Query("DELETE FROM User u WHERE u.id = :id")
-    long deleteUser(@Param("id") String id);
+    int deleteUser(@Param("id") String id);
 }
