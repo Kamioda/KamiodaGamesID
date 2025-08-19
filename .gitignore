@@ -35,4 +35,6 @@ build/
 .fake
 
 # Docker
-data/mariadb/
+data/
+!data/healthcheck
+!data/mail
