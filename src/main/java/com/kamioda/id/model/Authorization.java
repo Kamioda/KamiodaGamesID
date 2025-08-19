@@ -65,8 +65,8 @@ public class Authorization {
     public String getMasterID() {
         return authorizedUser != null ? authorizedUser.getId() : null;
     }
-    public String getAppID() {
-        return application != null ? application.getAppId() : null;
+    public Application getApp() {
+        return application;
     }
     public String getRedirectUri(String authCode) {
         return redirectURI + "?auth_code=" + authCode;

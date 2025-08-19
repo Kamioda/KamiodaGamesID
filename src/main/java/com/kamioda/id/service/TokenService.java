@@ -11,7 +11,6 @@ import com.kamioda.id.model.Application;
 import com.kamioda.id.model.Token;
 import com.kamioda.id.model.User;
 import com.kamioda.id.model.dto.TokenDTO;
-import com.kamioda.id.repository.ApplicationRepository;
 import com.kamioda.id.repository.TokenRepository;
 import com.kamioda.id.repository.UserRepository;
 
@@ -23,18 +22,14 @@ public class TokenService {
     private TokenGenerator tokenGenerator;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private ApplicationRepository applicationRepository;
-
-    public TokenDTO createToken(String id, String appId) {
+    public TokenDTO createToken(String id, Application app) {
         String accessToken = tokenGenerator.generate(128);
         String refreshToken = tokenGenerator.generate(128);
         if (tokenRepository.findByAccessToken(Token.hashAccessToken(accessToken)) != null
-            || tokenRepository.findByRefreshToken(Token.hashRefreshToken(refreshToken)) != null) return createToken(id, appId);
+            || tokenRepository.findByRefreshToken(Token.hashRefreshToken(refreshToken)) != null) return createToken(id, app);
         Optional<User> user = userRepository.findById(id);
-        Optional<Application> app = applicationRepository.findById(appId);
-        if (user.isEmpty() || app.isEmpty()) throw new IllegalArgumentException("Invalid User ID or Application ID");
-        Token token = new Token(accessToken, refreshToken, user.get(), app.get());
+        if (user.isEmpty() || app == null) throw new IllegalArgumentException("Invalid User ID or Application ID");
+        Token token = new Token(accessToken, refreshToken, user.get(), app);
         tokenRepository.save(token);
         token = tokenRepository.findByAccessToken(Token.hashAccessToken(accessToken));
         return new TokenDTO(accessToken, refreshToken, token.getCreatedAt());
@@ -44,7 +39,7 @@ public class TokenService {
         Token token = tokenRepository.findByRefreshToken(hashedRefreshToken);
         if (token == null || token.refreshTokenExpired()) throw new UnauthorizationException("Invalid Refresh Token");
         tokenRepository.deleteByRefreshToken(hashedRefreshToken);
-        return createToken(token.getUserMasterID(), token.getApplicationId());
+        return createToken(token.getUserMasterID(), token.getApplication());
     }
     public User getUser(String accessToken) {
         Token token = tokenRepository.findByAccessToken(Token.hashAccessToken(accessToken));

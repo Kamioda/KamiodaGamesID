@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kamioda.id.component.AppAuthorization;
 import com.kamioda.id.service.AuthorizationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RestController(value = "oauth")
@@ -49,14 +51,16 @@ public class AuthorizationController extends ControllerBase {
         }
     }
     @PostMapping("/oauth/token")
-    public ResponseEntity<?> issueToken(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> issueToken(@RequestBody Map<String, String> body, @RequestHeader("Authorization") String authHeader) {
         try {
+            AppAuthorization appAuthInfo = new AppAuthorization(authHeader);
             switch(body.get("grant_type")) {
                 case "authorization_code":
                     return ResponseEntity.ok(authorizationService.issueToken(
                         body.get("auth_code"),
                         body.get("code_verifier"),
-                        body.get("redirect_uri")
+                        body.get("redirect_uri"),
+                        appAuthInfo
                     ));
                 case "refresh_token":
                     return ResponseEntity.ok(authorizationService.issueToken(

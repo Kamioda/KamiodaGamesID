@@ -71,8 +71,8 @@ public class Token {
     public String getUserMasterID() {
         return user.getId();
     }
-    public String getApplicationId() {
-        return application.getAppId();
+    public Application getApplication() {
+        return application;
     }
     public User getUser() {
         return user;

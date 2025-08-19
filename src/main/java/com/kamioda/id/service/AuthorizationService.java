@@ -5,7 +5,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.kamioda.id.component.AppAuthorization;
 import com.kamioda.id.component.AuthIDGenerator;
+import com.kamioda.id.controller.ApplicationController;
 import com.kamioda.id.exception.NotFoundException;
 import com.kamioda.id.exception.UnauthorizationException;
 import com.kamioda.id.model.Application;
@@ -28,6 +30,9 @@ public class AuthorizationService {
     private UserRepository userRepository;
     @Autowired
     private TokenService tokenService;
+
+    AuthorizationService(ApplicationController application) {
+    }
     public String createAuthorization(String appId, String redirectURI, String codeChallenge, String codeChallengeMethod) {
         Optional<Application> application = applicationRepository.findById(appId);
         if (application.isEmpty() || !application.get().equalRedirectUri(redirectURI)) throw new NotFoundException("Application not found");
@@ -44,10 +49,13 @@ public class AuthorizationService {
         authorizationRepository.updateToAuthCode(authCode, user.getId(), authId);
         return authorization.getRedirectUri(authCode);
     }
-    public TokenDTO issueToken(String authCode, String codeVerifier, String redirectUri) {
+    public TokenDTO issueToken(String authCode, String codeVerifier, String redirectUri, AppAuthorization appAuthInfo) {
         Authorization authorization = authorizationRepository.findByAuthCode(authCode);
+        Application app = authorization.getApp();
+        if (app.getAppId() != appAuthInfo.getClientId()) throw new UnauthorizationException("Invalid application authorization");
         if (authorization == null || !authorization.verify(redirectUri, codeVerifier)) throw new UnauthorizationException("Invalid redirect URI or code verifier");
-        return tokenService.createToken(authorization.getMasterID(), authorization.getAppID());
+        if (!app.matchAppSecret(appAuthInfo.getClientSecret())) throw new UnauthorizationException("Invalid application authorization");
+        return tokenService.createToken(authorization.getMasterID(), app);
     }
     public TokenDTO issueToken(String refreshToken) {
         return tokenService.refreshToken(refreshToken);
