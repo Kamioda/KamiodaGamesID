@@ -37,25 +37,35 @@ public class AuthorizationService {
         Optional<Application> application = applicationRepository.findById(appId);
         if (application.isEmpty() || !application.get().equalRedirectUri(redirectURI)) throw new NotFoundException("Application not found");
         String authId = authIDGenerator.generate();
-        authorizationRepository.createAuthorization(authId, appId, redirectURI, codeChallenge, codeChallengeMethod);
+        Authorization authorization = new Authorization(
+            authId,
+            redirectURI,
+            codeChallenge,
+            codeChallengeMethod,
+            application.get()
+        );
+        authorizationRepository.save(authorization);
         return authId;
     }
     public String authorizationWithIDAndPassword(String authId, String id, String password) {
-        Authorization authorization = authorizationRepository.findByAuthId(authId);
-        if (authorization == null) throw new NotFoundException("Authorization not found");
+        Optional<Authorization> authIdRecord = authorizationRepository.findById("auth0-" + authId);
+        if (authIdRecord.isEmpty()) throw new NotFoundException("Authorization not found");
         User user = userRepository.findByUserId(id);
         if (user == null || !User.hashPassword(password).equals(user.getPassword())) throw new UnauthorizationException("Invalid User ID or Password");
         String authCode = authIDGenerator.generate();
-        authorizationRepository.updateToAuthCode(authCode, user.getId(), authId);
-        return authorization.getRedirectUri(authCode);
+        Authorization auth = new Authorization(authIdRecord.get(), authCode, user);
+        authorizationRepository.save(auth);
+        authorizationRepository.deleteById(authId);
+        return authCode;
     }
     public TokenDTO issueToken(String authCode, String codeVerifier, String redirectUri, AppAuthorization appAuthInfo) {
-        Authorization authorization = authorizationRepository.findByAuthCode(authCode);
-        Application app = authorization.getApp();
+        Optional<Authorization> authorization = authorizationRepository.findById("auth1-" + authCode);
+        if (authorization.isEmpty()) throw new NotFoundException("Authorization not found");
+        Application app = authorization.get().getApp();
         if (app.getAppId() != appAuthInfo.getClientId()) throw new UnauthorizationException("Invalid application authorization");
-        if (authorization == null || !authorization.verify(redirectUri, codeVerifier)) throw new UnauthorizationException("Invalid redirect URI or code verifier");
+        if (!authorization.get().verify(redirectUri, codeVerifier)) throw new UnauthorizationException("Invalid redirect URI or code verifier");
         if (!app.matchAppSecret(appAuthInfo.getClientSecret())) throw new UnauthorizationException("Invalid application authorization");
-        return tokenService.createToken(authorization.getMasterID(), app);
+        return tokenService.createToken(authorization.get().getMasterID(), app);
     }
     public TokenDTO issueToken(String refreshToken) {
         return tokenService.refreshToken(refreshToken);

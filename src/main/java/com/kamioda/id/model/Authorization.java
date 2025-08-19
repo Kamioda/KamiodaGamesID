@@ -2,6 +2,8 @@ package com.kamioda.id.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.kamioda.id.component.HashUtils;
 
 import jakarta.persistence.Column;
@@ -35,7 +37,8 @@ public class Authorization {
     private String codeChallenge;
     @Column(name = "CodeChallengeMethod", nullable = false)
     private String codeChallengeMethod;
-    @Column(name = "ReferenceTime", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @CreationTimestamp
+    @Column(name = "ReferenceTime", nullable = false)
     private LocalDateTime referenceTime;
     @ManyToOne
     @JoinColumn(
@@ -54,6 +57,22 @@ public class Authorization {
     )
     private Application application;
     public Authorization() {}
+    public Authorization(String authID, String redirectURI, String codeChallenge, String codeChallengeMethod, Application application) {
+        this.authID = "auth0-" + authID;
+        this.redirectURI = redirectURI;
+        this.codeChallenge = codeChallenge;
+        this.codeChallengeMethod = codeChallengeMethod;
+        this.authorizedUser = null;
+        this.application = application;
+    }
+    public Authorization(Authorization authorizationWithAuthId, String authCode, User user) {
+        this.authID = "auth1-" + authCode;
+        this.redirectURI = authorizationWithAuthId.redirectURI;
+        this.codeChallenge = authorizationWithAuthId.codeChallenge;
+        this.codeChallengeMethod = authorizationWithAuthId.codeChallengeMethod;
+        this.authorizedUser = user;
+        this.application = authorizationWithAuthId.application;
+    }
     private boolean expired() {
         return referenceTime != null && referenceTime.isBefore(LocalDateTime.now().minusMinutes(EXPIRED_MIN));
     }
