@@ -81,8 +81,8 @@ public class Authorization {
         if ("plain".equalsIgnoreCase(codeChallengeMethod)) return codeVerifier.equals(codeChallenge);
         return HashUtils.toHash(codeVerifier, codeChallengeMethod, "base64").equals(codeChallenge);
     }
-    public String getMasterID() {
-        return authorizedUser != null ? authorizedUser.getId() : null;
+    public User getUser() {
+        return authorizedUser;
     }
     public Application getApp() {
         return application;

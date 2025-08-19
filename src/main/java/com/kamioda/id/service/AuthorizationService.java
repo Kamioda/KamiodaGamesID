@@ -65,7 +65,7 @@ public class AuthorizationService {
         if (app.getAppId() != appAuthInfo.getClientId()) throw new UnauthorizationException("Invalid application authorization");
         if (!authorization.get().verify(redirectUri, codeVerifier)) throw new UnauthorizationException("Invalid redirect URI or code verifier");
         if (!app.matchAppSecret(appAuthInfo.getClientSecret())) throw new UnauthorizationException("Invalid application authorization");
-        return tokenService.createToken(authorization.get().getMasterID(), app);
+        return tokenService.createToken(authorization.get().getUser(), app);
     }
     public TokenDTO issueToken(String refreshToken) {
         return tokenService.refreshToken(refreshToken);
