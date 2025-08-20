@@ -1,7 +1,7 @@
 このたびは、Kamioda Games IDへのご登録ありがとうございます。
-以下のURLより本登録をお願いします。
+登録コードは次の通りです。
 
-https://id.kamioda.tokyo/entry?id={PreEntryID}
+{PreEntryID}
 
 本登録が完了するとKamioda Gamesが提供する全てのオンラインサービスが利用できるようになります。
 ※本登録のリンクの有効期限は30分です。
