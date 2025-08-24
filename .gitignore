@@ -35,6 +35,5 @@ build/
 .fake
 
 # Docker
-data/
-!data/healthcheck
-!data/mail
+data/mariadb/
+data/*.txt

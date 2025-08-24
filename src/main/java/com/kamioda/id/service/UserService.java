@@ -11,6 +11,7 @@ import com.kamioda.id.repository.UserRepository;
 import com.kamioda.id.component.File;
 import com.kamioda.id.component.MailSender;
 import com.kamioda.id.component.MasterIDGenerator;
+import com.kamioda.id.component.PasswordGenerator;
 import com.kamioda.id.component.PreEntryIDGenerator;
 import com.kamioda.id.exception.*;
 import com.kamioda.id.model.PreEntryRecord;
@@ -32,9 +33,13 @@ public class UserService {
     private TokenService tokenService;
     @Autowired
     private MasterIDGenerator masterIDGenerator;
+    @Autowired
+    private PasswordGenerator passwordGenerator;
+
     public Long getCurrentAccountCount() {
         return userRepository.count();
     }
+
     public void preEntry(String Email) throws BadRequestException, IOException {
         if (userRepository.countRecords(Email) > 0 || preEntryRepository.countByEmail(Email) > 0)
             throw new BadRequestException("Email already in use");
@@ -44,18 +49,25 @@ public class UserService {
         Message.replace("{PreEntryID}", PreEntryID);
         mail.send(Email, "【Kamioda Games ID】仮登録のお知らせ", Message);
     }
+
     public void create(User user) {
         userRepository.save(user);
     }
+
     public Optional<User> findById(String userId) {
         return userRepository.findById(userId);
     }
-    public void entry(String preEntryId, String userId, String name, String password) throws BadRequestException, NotFoundException, IOException {
+
+    public void entry(String preEntryId, String userId, String name, String password)
+            throws BadRequestException, NotFoundException, IOException {
         try {
             Optional<PreEntryRecord> record = preEntryRepository.findById(preEntryId);
-            if (record.isEmpty()) throw new NotFoundException("Pre-entry record not found");
-            if (record.get().expired()) throw new BadRequestException("Pre-entry record expired");
-            if (userRepository.countRecords(userId) > 0) throw new BadRequestException("User ID already in use");
+            if (record.isEmpty())
+                throw new NotFoundException("Pre-entry record not found");
+            if (record.get().expired())
+                throw new BadRequestException("Pre-entry record expired");
+            if (userRepository.countRecords(userId) > 0)
+                throw new BadRequestException("User ID already in use");
             String masterID = masterIDGenerator.generate(userId);
             create(new User(masterID, userId, name, record.get().getEmail(), password));
             String Message = File.readAllText("./data/mail/entry.txt");
@@ -66,18 +78,21 @@ public class UserService {
             preEntryRepository.deletePreEntryRecord(preEntryId);
         }
     }
+
     public AccountInformation getAccountInformation(String accessToken) {
         return tokenService.getUser(accessToken).toAccountInformation();
     }
-    public void updateAccountInformation(String accessToken, AccountUpdateInformation newAccountInformation) throws UnauthorizationException, NotFoundException, IOException {
+
+    public void updateAccountInformation(String accessToken, AccountUpdateInformation newAccountInformation)
+            throws UnauthorizationException, NotFoundException, IOException {
         User user = tokenService.getUser(accessToken);
         userRepository.updateUser(
-            user.getId(), 
-            newAccountInformation.getUserId(), 
-            newAccountInformation.getName(), 
-            null, 
-            newAccountInformation.getPassword() == null ? null : User.hashPassword(newAccountInformation.getPassword())
-        );
+                user.getId(),
+                newAccountInformation.getUserId(),
+                newAccountInformation.getName(),
+                null,
+                newAccountInformation.getPassword() == null ? null
+                        : User.hashPassword(newAccountInformation.getPassword()));
         if (newAccountInformation.getEmail() != null) {
             String updateID = preEntryIDGenerator.generate();
             preEntryRepository.insertEmailUpdateRecord(updateID, user.getId(), newAccountInformation.getEmail());
@@ -88,16 +103,20 @@ public class UserService {
             mail.send(newAccountInformation.getEmail(), "【Kamioda Games ID】メールアドレス変更のお知らせ", Message);
         }
     }
+
     public void completeEmailUpdate(String updateId) throws NotFoundException, IOException {
         Optional<PreEntryRecord> record = preEntryRepository.findById(updateId);
-        if (record.isEmpty()) throw new NotFoundException("Pre-entry record not found");
+        if (record.isEmpty())
+            throw new NotFoundException("Pre-entry record not found");
         try {
-            if (record.get().expired()) throw new NotFoundException("Pre-entry record expired");
+            if (record.get().expired())
+                throw new NotFoundException("Pre-entry record expired");
             userRepository.updateUser(record.get().getMasterId(), null, null, record.get().getEmail(), null);
         } finally {
             preEntryRepository.deletePreEntryRecord(updateId);
         }
     }
+
     public void deleteAccount(String accessToken) throws UnauthorizationException, NotFoundException, IOException {
         User user = tokenService.getUser(accessToken);
         userRepository.deleteUser(user.getId());
@@ -106,16 +125,32 @@ public class UserService {
         Message.replace("{UserID}", user.getUserId());
         mail.send(user.getEmail(), "【Kamioda Games ID】アカウント削除のお知らせ", Message);
     }
-    public void deleteAccount(String accessToken, String userId, String deleteReason) throws UnauthorizationException, NotFoundException, IOException {
+
+    public void deleteAccount(String accessToken, String userId, String deleteReason)
+            throws UnauthorizationException, NotFoundException, IOException {
         User user = tokenService.getUser(accessToken);
-        if (user.getId().charAt((0)) != '0') throw new UnauthorizationException("You cannot delete other user's account");
+        if (user.getId().charAt((0)) != '0')
+            throw new UnauthorizationException("You cannot delete other user's account");
         User target = userRepository.findByUserId(userId);
-        if (target == null) throw new NotFoundException("User not found");
+        if (target == null)
+            throw new NotFoundException("User not found");
         userRepository.deleteById(user.getId());
         String Message = File.readAllText("./data/mail/force_delete.txt");
         Message.replace("{UserName}", target.getName());
         Message.replace("{UserID}", target.getUserId());
         Message.replace("{DeleteReason}", deleteReason);
         mail.send(target.getEmail(), "【Kamioda Games ID】アカウント強制削除のお知らせ", Message);
+    }
+
+    public void resetPassword(String accountId) throws IOException {
+        User user = userRepository.findByUserId(accountId);
+        if (user == null)
+            throw new NotFoundException("User not found");
+        String newPassword = passwordGenerator.generate();
+        userRepository.updateUser(user.getId(), null, null, null, User.hashPassword(newPassword));
+        String message = File.readAllText("./data/mail/reset_password.txt");
+        message.replace("{UserName}", user.getName());
+        message.replace("{NewPassword}", newPassword);
+        mail.send(user.getEmail(), "【Kamioda Games ID】パスワードリセットのお知らせ", message);
     }
 }
