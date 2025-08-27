@@ -122,7 +122,6 @@ public class UserService {
         userRepository.deleteUser(user.getId());
         String Message = File.readAllText("./data/mail/delete.txt");
         Message.replace("{UserName}", user.getName());
-        Message.replace("{UserID}", user.getUserId());
         mail.send(user.getEmail(), "【Kamioda Games ID】アカウント削除のお知らせ", Message);
     }
 
@@ -137,7 +136,6 @@ public class UserService {
         userRepository.deleteById(user.getId());
         String Message = File.readAllText("./data/mail/force_delete.txt");
         Message.replace("{UserName}", target.getName());
-        Message.replace("{UserID}", target.getUserId());
         Message.replace("{DeleteReason}", deleteReason);
         mail.send(target.getEmail(), "【Kamioda Games ID】アカウント強制削除のお知らせ", Message);
     }
