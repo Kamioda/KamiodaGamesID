@@ -18,14 +18,11 @@ import com.kamioda.id.component.HashUtils;
 import com.kamioda.id.model.dto.AccountInformation;
 
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "UK_master_id", columnNames = "ID"),
         @UniqueConstraint(name = "UK_user_id", columnNames = "UserID"),
         @UniqueConstraint(name = "UK_user_email", columnNames = "Email")
-    }
-)
+})
 public class User {
     private static final String PasswordSalt = "YA2FMSnL4QGU2sjO";
     @Id
@@ -62,7 +59,10 @@ public class User {
     private List<Application> applications;
     @OneToMany(mappedBy = "authorizedUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Authorization> authorizations;
-    public User() {}
+
+    public User() {
+    }
+
     public User(String id, String userId, String userName, String email, String password) {
         this.id = id;
         this.userId = userId;
@@ -70,24 +70,31 @@ public class User {
         this.email = email;
         this.password = hashPassword(password);
     }
+
     public String getId() {
         return id;
     }
+
     public String getUserId() {
         return userId;
     }
+
     public String getName() {
         return userName;
     }
+
     public String getEmail() {
         return email;
     }
+
     public String getPassword() {
         return password;
     }
+
     public AccountInformation toAccountInformation() {
-        return new AccountInformation(userId, userName, email);
+        return new AccountInformation(id, userId, userName, email);
     }
+
     public static String hashPassword(String password) {
         return HashUtils.toHash(password + PasswordSalt, "sha512", "hex", 17).toUpperCase();
     }
